@@ -53,8 +53,8 @@ body {
   text-align: center;
   color: #fff;
   overflow: hidden;
-  opacity: 1;
-  transition: 225ms;
+  opacity: 0;
+  transition: opacity 500ms;
 }
 .custom-range > .value-indicator.left {
   left: -15px;
