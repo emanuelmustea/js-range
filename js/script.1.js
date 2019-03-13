@@ -96,12 +96,6 @@ const instantMove = event => {
     document.addEventListener("mousemove", calculateRightXPosition);
   }
 };
-const leftThumbDrag = event => {
-  document.addEventListener("mousemove", calculateLeftXPosition);
-};
-const rightThumbDrag = event => {
-  document.addEventListener("mousemove", calculateRightXPosition);
-};
 
 rangeContainer.addEventListener("mousedown", instantMove);
 
