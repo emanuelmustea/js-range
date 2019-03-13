@@ -1,11 +1,15 @@
-const element = query => document.querySelector(query);
+const getElement = query => document.querySelector(query);
 
-let rangeContainer = element(".custom-range");
-let rangeIndicatorContainer = element(".custom-range > .range-indicator");
-let leftThumb = element(".custom-range > .thumb.left");
-let rightThumb = element(".custom-range > .thumb.right");
-let leftIndicatorContainer = element(".custom-range > .value-indicator.left");
-let rightIndicatorContainer = element(".custom-range > .value-indicator.right");
+const rangeContainer = getElement(".custom-range");
+const rangeIndicatorContainer = getElement(".custom-range > .range-indicator");
+const leftThumb = getElement(".custom-range > .thumb.left");
+const rightThumb = getElement(".custom-range > .thumb.right");
+const leftIndicatorContainer = getElement(
+  ".custom-range > .value-indicator.left"
+);
+const rightIndicatorContainer = getElement(
+  ".custom-range > .value-indicator.right"
+);
 
 const rangeMinValue = parseInt(rangeContainer.getAttribute("data-min"));
 const rangeMaxValue = parseInt(rangeContainer.getAttribute("data-max"));
@@ -99,8 +103,6 @@ const rightThumbDrag = event => {
   document.addEventListener("mousemove", calculateRightXPosition);
 };
 
-leftThumb.addEventListener("mousedown", leftThumbDrag);
-rightThumb.addEventListener("mousedown", rightThumbDrag);
 rangeContainer.addEventListener("mousedown", instantMove);
 
 document.addEventListener("mouseup", removeListener);
