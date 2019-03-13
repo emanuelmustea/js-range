@@ -61,13 +61,20 @@ const calculateRightXPosition = event => {
     rightIndicatorContainer.style.left = `${thumbOffset + thumbWidth / 2 - indicatorWidth / 2}px`;
   }
 };
+const isLeftThumbCloser = (mouseOffsetX, rangeContainerPosition) => {
+  let leftOffset = mouseOffsetX - leftThumb.offsetLeft - rangeContainerPosition;
+  let rightOffset = mouseOffsetX - rightThumb.offsetLeft - rangeContainerPosition;
+  if (leftOffset < 0) {
+    leftOffset -= thumbWidth;
+  } else {
+    rightOffset -= thumbWidth;
+  }
+  return Math.abs(leftOffset) <= Math.abs(rightOffset) ? true : false;
+};
 const instantMove = event => {
   const rangeContainerPosition = rangeContainer.getBoundingClientRect().left;
   const mouseOffsetX = event.clientX;
-  if (
-    Math.abs(mouseOffsetX - leftThumb.offsetLeft - rangeContainerPosition) <=
-    Math.abs(mouseOffsetX - rightThumb.offsetLeft - rangeContainerPosition)
-  ) {
+  if (isLeftThumbCloser(mouseOffsetX, rangeContainerPosition)) {
     calculateLeftXPosition(event);
     document.addEventListener("mousemove", calculateLeftXPosition);
   } else {
