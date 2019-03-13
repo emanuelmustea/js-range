@@ -44,6 +44,7 @@ const calculateLeftXPosition = event => {
     }
     leftValue = value;
     leftIndicatorContainer.innerHTML = leftValue;
+    rightIndicatorContainer.style.zIndex = 0;
     leftIndicatorContainer.style.left = `${thumbOffset +
       thumbWidth / 2 -
       indicatorWidth / 2}px`;
@@ -71,23 +72,38 @@ const calculateRightXPosition = event => {
     }
     rightValue = value;
     rightIndicatorContainer.innerHTML = value;
+    rightIndicatorContainer.style.zIndex = 1;
     rightIndicatorContainer.style.left = `${thumbOffset +
       thumbWidth / 2 -
       indicatorWidth / 2}px`;
   }
 };
+const instantMove = event => {
+  const rangeContainerPosition = rangeContainer.getBoundingClientRect().left;
+  const mouseOffsetX = event.clientX;
+  if (
+    Math.abs(mouseOffsetX - leftThumb.offsetLeft - rangeContainerPosition) <=
+    Math.abs(mouseOffsetX - rightThumb.offsetLeft - rangeContainerPosition)
+  ) {
+    calculateLeftXPosition(event);
+    document.addEventListener("mousemove", calculateLeftXPosition);
+  } else {
+    calculateRightXPosition(event);
+    document.addEventListener("mousemove", calculateRightXPosition);
+  }
+};
 const leftThumbDrag = event => {
   document.addEventListener("mousemove", calculateLeftXPosition);
-  document.addEventListener("mouseup", removeListener);
 };
 const rightThumbDrag = event => {
   document.addEventListener("mousemove", calculateRightXPosition);
-  document.addEventListener("mouseup", removeListener);
 };
 
 leftThumb.addEventListener("mousedown", leftThumbDrag);
-
 rightThumb.addEventListener("mousedown", rightThumbDrag);
+rangeContainer.addEventListener("mousedown", instantMove);
+
+document.addEventListener("mouseup", removeListener);
 
 rightIndicatorContainer.innerHTML = rightValue;
 leftIndicatorContainer.innerHTML = leftValue;
