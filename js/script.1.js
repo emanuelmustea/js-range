@@ -15,50 +15,31 @@ const rangeWidth = rangeContainer.offsetWidth;
 let leftValue = rangeMinValue;
 let rightValue = rangeMaxValue;
 
-const removeListener = event => {
+const removeListener = () => {
   document.removeEventListener("mousemove", calculateLeftXPosition);
   document.removeEventListener("mousemove", calculateRightXPosition);
 };
 
 const getValue = thumbOffset => Math.ceil((thumbOffset * rangeMaxValue) / (rangeWidth - thumbWidth));
 const getThumbOffset = event => event.clientX - rangeContainer.getBoundingClientRect().left - thumbWidth / 2;
-const calculateLeftXPosition = event => calculateThumbPosition(event, leftThumb);
-const calculateRightXPosition = event => calculateThumbPosition(event, rightThumb);
-const isThumbInsideRangeContainer = thumbOffset =>
-  thumbOffset >= 0 && thumbOffset <= rangeContainer.offsetWidth - thumbWidth;
+const isThumbInsideRangeContainer = thumbOffset => thumbOffset >= 0 && thumbOffset <= rangeContainer.offsetWidth - thumbWidth;
 
-const setRangeIndicatorContainer = (left, width) => {
+const setRangeIndicatorContainer = (thumbOffset, standingThumbContainer) => {
+  let left = thumbOffset < standingThumbContainer.offsetLeft ? thumbOffset : standingThumbContainer.offsetLeft;
+  let width =
+    thumbOffset < standingThumbContainer.offsetLeft ? standingThumbContainer.offsetLeft - thumbOffset : thumbOffset - standingThumbContainer.offsetLeft;
   rangeIndicatorContainer.style.left = `${left}px`;
   rangeIndicatorContainer.style.width = `${width}px`;
 };
-const setValueIndicatorContainer = (currentIndicatorContainer, value, zIndex, left) => {
-  currentIndicatorContainer.innerHTML = value;
-  currentIndicatorContainer.style.left = `${left}px`;
+const setValueIndicatorContainer = (movingValueIndicatorContainer, value, zIndex, left) => {
+  movingValueIndicatorContainer.innerHTML = value;
+  movingValueIndicatorContainer.style.left = `${left}px`;
   rightValueIndicatorContainer.style.zIndex = zIndex;
 };
-calculateThumbPosition = (event, currentThumbContainer) => {
-  const thumbOffset = getThumbOffset(event);
-  const value = getValue(thumbOffset);
-  const currentValueIndicatorContainer =
-    currentThumbContainer === leftThumb ? leftValueIndicatorContainer : rightValueIndicatorContainer;
-  const rightValueIndicatorOpacity = currentThumbContainer === leftThumb ? 0 : 1;
-  const otherThumbContainer = currentThumbContainer === leftThumb ? rightThumb : leftThumb;
-  if (isThumbInsideRangeContainer(thumbOffset)) {
-    currentThumbContainer.style.left = `${thumbOffset}px`;
-    if (thumbOffset < otherThumbContainer.offsetLeft) {
-      setRangeIndicatorContainer(thumbOffset, otherThumbContainer.offsetLeft - thumbOffset);
-    } else {
-      setRangeIndicatorContainer(otherThumbContainer.offsetLeft, thumbOffset - otherThumbContainer.offsetLeft);
-    }
-    setValueIndicatorContainer(
-      currentValueIndicatorContainer,
-      value,
-      rightValueIndicatorOpacity,
-      thumbOffset + thumbWidth / 2 - indicatorWidth / 2
-    );
-  }
-};
 
+const setThumbPosition = (movingThumbContainer, thumbOffset) => {
+  movingThumbContainer.style.left = `${thumbOffset}px`;
+};
 const isLeftThumbCloserToMouse = (mouseOffsetX, rangeContainerPosition) => {
   let leftOffset = mouseOffsetX - leftThumb.offsetLeft - rangeContainerPosition;
   let rightOffset = mouseOffsetX - rightThumb.offsetLeft - rangeContainerPosition;
@@ -67,8 +48,25 @@ const isLeftThumbCloserToMouse = (mouseOffsetX, rangeContainerPosition) => {
   } else {
     rightOffset -= thumbWidth;
   }
-  return Math.abs(leftOffset) <= Math.abs(rightOffset) ? true : false;
+  return Math.abs(leftOffset) <= Math.abs(rightOffset);
 };
+
+calculateThumbPosition = (event, movingThumbContainer) => {
+  const thumbOffset = getThumbOffset(event);
+  const value = getValue(thumbOffset);
+  const movingValueIndicatorContainer = movingThumbContainer === leftThumb ? leftValueIndicatorContainer : rightValueIndicatorContainer;
+  const rightValueIndicatorOpacity = movingThumbContainer === leftThumb ? 0 : 1;
+  const standingThumbContainer = movingThumbContainer === leftThumb ? rightThumb : leftThumb;
+  const valueIndicatorLeftPosition = thumbOffset + thumbWidth / 2 - indicatorWidth / 2;
+  if (isThumbInsideRangeContainer(thumbOffset)) {
+    setThumbPosition(movingThumbContainer, thumbOffset);
+    setRangeIndicatorContainer(thumbOffset, standingThumbContainer);
+    setValueIndicatorContainer(movingValueIndicatorContainer, value, rightValueIndicatorOpacity, valueIndicatorLeftPosition);
+  }
+};
+
+const calculateLeftXPosition = event => calculateThumbPosition(event, leftThumb);
+const calculateRightXPosition = event => calculateThumbPosition(event, rightThumb);
 
 const moveThumbOnMouseClick = event => {
   const rangeContainerPosition = rangeContainer.getBoundingClientRect().left;
@@ -84,5 +82,6 @@ const moveThumbOnMouseClick = event => {
 
 rangeContainer.addEventListener("mousedown", moveThumbOnMouseClick);
 document.addEventListener("mouseup", removeListener);
+
 rightValueIndicatorContainer.innerHTML = rightValue;
 leftValueIndicatorContainer.innerHTML = leftValue;
